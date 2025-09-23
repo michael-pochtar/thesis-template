@@ -1,22 +1,25 @@
 #import "@preview/glossarium:0.5.9": make-glossary, print-glossary, register-glossary
+#import "@preview/acrostiche:0.6.0": init-acronyms, print-index
+#import "thm-helpers.typ": *
 
 #let thm-thesis(
-  title: [Title of the Thesis],
-  thesis-type: "Master's thesis/Bachelor's thesis",
+  title-en: [Title of the Thesis],
+  title-de: [Titel der Thesis],
   lang: "en",
-  region: none,
-  english-abstract: [English abstract.],
-  german-abstract: [Deutsche Zusammenfassung.],
-  author: [My Name],
-  reviewer: "Prof. A",
+  abstract-en: [English abstract.],
+  abstract-de: [Deutsche Zusammenfassung.],
+  author-surname: [Mustermann],
+  author-given-name: [Max],
+  reviewers: ("Prof. A", "Prof. B"),
   advisors: ("C, M.Sc.", "D, M.Sc."),
-  start-date: datetime.today() - duration(weeks: 16),
-  end-date: datetime.today(),
-  include-declaration: true,
-  declaration-date: datetime.today(),
-  declaration-city: "Mannheim",
+  submission-date: datetime.today(),
+  city: "Mannheim",
+  faculty: "I",
+  course-of-study: "IB",
+  is-proposal: true,
   bibliography: none,
   glossary: none,
+  acronyms: none,
   body
 ) = {
 
@@ -24,9 +27,14 @@
   let sans = "TeX Gyre Heros"
   let serif = "TeX Gyre Termes"
 
+  let title = if is-en { title-en } else { title-de }
+
+  let course-of-study = courses-of-study.at(course-of-study)
+  let faculty = faculties.at(faculty)
+
   set page(paper: "a4")
 
-  set text(size: 12pt, font: serif, lang: lang, region: region)
+  set text(size: 12pt, font: serif, lang: lang)
 
   let date-format = "[day].[month].[year]"
 
@@ -49,34 +57,40 @@
         text(font: sans, size: 17pt, hyphenate: false, strong(title))
       )
 
-      #author
+      #author-given-name #author-surname
 
-      #pad(top: 3.5em, thesis-type)
-
-      #if is-en {
-        text(size: 11pt, [in partial fulfillment of the requirements for the degree of Bachelor of Science (B.Sc.)])
-        parbreak()
-        [Course of Study: Computer Science]
+      #if is-proposal {
+        pad(top: 3.5em, [#course-of-study.type-en Proposal])
       } else {
-        text(size: 11pt, [zur Erlangung des akademischen Grades Bachelor of Science (B.Sc.)])
-        parbreak()
-        [Studiengang Informatik]
+        if is-en {
+          pad(top: 3.5em, course-of-study.type-en)
+          text(size: 11pt, [for the acquisition of the academic degree #course-of-study.degree])
+          parbreak()
+          [Course of Studies: #course-of-study.en]
+        } else {
+          pad(top: 3.5em, course-of-study.type-de)
+          text(size: 11pt, [zur Erlangung des akademischen Grades #course-of-study.degree])
+          parbreak()
+          [Studiengang #course-of-study.de]
+        }
       }
 
       #pad(top: 2em, bottom: 2em, [
-        #if is-en [Faculty of Computer Science] else [Fakultät für Informatik]
+        #if is-en { faculty.en } else { faculty.de }
         #parbreak()
-        #if is-en [University of Applied Sciences Mannheim] else [Technische Hochschule Mannheim]
+        #if is-en { institute.en } else { institute.de }
       ])
 
-      #declaration-date.display(date-format)
+      #submission-date.display(date-format)
 
-      #pad(top: 5em, {
+      #place(bottom + center, {
         if is-en [Supervisors] else [Betreuer]
         parbreak()
 
-        reviewer
-        parbreak()
+        for reviewer in reviewers {
+          reviewer
+          parbreak()
+        }
 
         for advisor in advisors {
           advisor
@@ -86,21 +100,75 @@
     ],
   )
 
+  if not is-proposal {
+    page[
+      *#author-surname, #author-given-name*:
+      #parbreak()
+      #title-de / #author-given-name #author-surname. --
+      #parbreak()
+      #course-of-study.type-de, #city: #institute.de, #submission-date.year(). #context counter(page).final().first() Seiten.
+
+      #v(3em)
+
+      *#author-surname, #author-given-name*:
+      #parbreak()
+      #title-en / #author-given-name #author-surname. --
+      #parbreak()
+      #course-of-study.type-en, #city: #institute.en, #submission-date.year(). #context counter(page).final().first() pages.
+
+      #place(bottom, [
+        Um die Lesbarkeit zu vereinfachen, wird auf die zusätzliche Formulierung der weiblichen Form bei Personenbezeichnungen verzichtet.
+        Ich weise deshalb darauf hin, dass die Verwendung der männlichen Form explizit als geschlechtsunabhängig verstanden werden soll.
+      ])
+    ]
+
+    page[
+      #text(size: 20pt, font: sans, strong([Erklärung]))
+
+      Hiermit erkläre ich, dass ich die vorliegende Arbeit selbstständig verfasst und keine anderen als die angegebenen Quellen und Hilfsmittel benutzt habe.
+
+      #city, #submission-date.display(date-format)
+
+      #place(bottom, [
+        Ich bin damit einverstanden, dass meine Arbeit veröffentlicht wird, d. h. dass die Arbeit elektronisch gespeichert,
+        in andere Formate konvertiert, auf den Servern der Technischen Hochschule Mannheim öffentlich zugänglich gemacht
+        und über das Internet verbreitet werden darf.
+      ])
+    ]
+  }
+
   set par(justify: true)
 
   set page(numbering: "i")
-  counter(page).update(1)
 
   show heading: h => {
     text(font: sans, strong(h))
   }
   show heading.where(level: 1): h => {
     pagebreak(weak: true)
-    pad(top: 5em, bottom: 2em, text(size: 24pt, h))
+    // text(size: 22pt, h)
+    pad(top: 5em, bottom: 1em, text(size: 22pt, h))
   }
-  show heading.where(level: 2): h => pad(top: 2em, bottom: 2em, text(size: 16pt, h))
 
-  show heading.where(level: 4): h => pad(top: 0.5em, text(font: sans, h.body))
+  // show heading.where(level: 2): h => pad(bottom: 0.5em, text(size: 15pt, h))
+  // show heading.where(level: 3): h => pad(bottom: 1em, h)
+  // show heading.where(level: 4): h => text(font: sans, h.body)
+
+  if not is-proposal {
+    text(size: 20pt, font: sans, strong([Abstrakt]))
+    v(1em)
+    text(size: 12pt, font: sans, strong(emph(title-de)))
+    v(1em)
+    abstract-de
+
+    v(2em)
+
+    text(size: 20pt, font: sans, strong([Abstract]))
+    v(1em)
+    text(size: 12pt, font: sans, strong(emph(title-en)))
+    v(1em)
+    abstract-en
+  }
 
   show outline.entry.where(level: 1): it => link(
     it.element.location(),
@@ -111,6 +179,11 @@
   )
 
   outline(indent: auto, depth: 3)
+
+  if acronyms != none {
+    init-acronyms(acronyms)
+    print-index(delimiter: "", title: "Abkürzungsverzeichnis", clickable: false, row-gutter: 1em, outlined: true)
+  }
 
   set heading(numbering: "1.1")
 
@@ -146,7 +219,6 @@
     ],
   )
 
-
   if glossary != none {
     show: make-glossary
     register-glossary(glossary)
@@ -154,21 +226,22 @@
 
   context {
     let page-number = here().page() - 1
-    let test = counter(page).at(here())
 
     set page(numbering: "1")
-    counter(page).update(1)
+    // counter(page).update(1)
 
     body
 
     set page(numbering: "i")
-    counter(page).update(test)
+    // counter(page).update(page-number)
   }
+
+  set heading(numbering: none)
 
   if glossary != none {
     pagebreak(weak: true)
     [= Glossar]
-    print-glossary(glossary, show-all: true)
+    print-glossary(glossary)
   }
 
   bibliography
