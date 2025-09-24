@@ -6,11 +6,11 @@ Um diese Vorlage zu verwenden, benötigen Sie [LyX](http://www.lyx.org) und eine
 
 ## Autoren
 
-  * Markus Gumbel (m.gumbel@hs-mannheim.de): Maintainer der Lyx-Vorlage basierend auf LaTeX-Vorlage
+  * Markus Gumbel (m.gumbel@th-mannheim.de): Maintainer der Lyx-Vorlage basierend auf LaTeX-Vorlage
 
-  * Thomas Smits (t.smits@hs-mannheim.de): Maintainer der LaTeX-Vorlage
+  * Thomas Smits (t.smits@th-mannheim.de): Maintainer der LaTeX-Vorlage
 
-  * Karl-Frieder Saadi Hus-Hus (1212117@stud.hs-mannheim.de): Aktualisierungen für das Jahr 2023
+  * Karl-Frieder Saadi Hus-Hus (1212117@stud.th-mannheim.de): Aktualisierungen für das Jahr 2023
 
 ## Hinweise
 
