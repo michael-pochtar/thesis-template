@@ -16,7 +16,7 @@
   city: "Mannheim",
   faculty: "I",
   course-of-study: "IB",
-  is-proposal: true,
+  is-proposal: false,
   bibliography: none,
   glossary: none,
   acronyms: none,
