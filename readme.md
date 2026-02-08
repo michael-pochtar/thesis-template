@@ -17,6 +17,7 @@ Für Personen außerhalb der Technischen Hochschule ist die Vorlage möglicherwe
 ## Struktur des Repositories
 
   * [`latex`](latex): Ein LaTeX-Template für Abschlussarbeiten
+  * [`typst`](typst): Eine [Typst](https://typst.app)-Version des LaTeX-Templates
   * [`lyx`](lyx): Eine [LyX](http://www.lyx.org)-Version des LaTeX-Templates
 
 Die [LaTeX-Version](latex) ist die am besten gepflegte Vorlage. Die LyX-Version hinkt etwas hinterher.
