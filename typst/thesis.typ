@@ -2,6 +2,7 @@
 #import "glossary.typ": glossary
 #import "acronyms.typ": acronyms
 #import "abstract.typ": abstract-de, abstract-en
+#import "appendix.typ" as appendix
 
 #show: thm-thesis.with(
   title-de: [Einsatz eines Flux-Kompensators für Zeitreisen mit einer maximalen Höchstgeschwindigkeit von WARP~7],
@@ -16,6 +17,8 @@
   bibliography: bibliography("refs.bib", style: "ieee"),
   glossary: glossary,
   acronyms: acronyms,
+  appendix: appendix,
+  signature: image("images/unterschrift.png"),
 )
 
 #include "chapters/chapter1.typ"
