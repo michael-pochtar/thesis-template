@@ -30,21 +30,14 @@ In der Informatik ist das Zitieren mit Kurzbelegen im Text (Harvard-Zitierweise)
 
 Am einfachsten ist es, wenn Sie das `\autocite{}`-Kommando verwenden. Bei diesem Kommando können Sie in der Datei `perambel.tex` festlegen, wie die Zitate generell aussehen sollen, #zb ob sie in Fußnoten erfolgen sollen oder nicht. Wollen Sie von dem globalen Zitierstil abweichen, können Sie weiterhin spezielle Kommandos benutzen:
 
-// TODO: Ein vom Template definiertes, einheitliches, globales styling für Listen.
-#pad(top: 1em, bottom: 1em,
-  [
-    #set list(spacing: 1.5em, indent: 1.5em)
-
-    - `\autocite{Willberg2021}`: @Willberg2021
-    - `\cite{Willberg2021}`: @Willberg2021
-    - `\parencite{Willberg2021}`: @Willberg2021
-    - `\footcite{Willberg2021}`: #footnote[@Willberg2021]
-    - `\citeauthor{Willberg2021}`: Willberg und Frossmann
-    - `\citeauthor*{Willberg2021}`: Willberg #ua
-    - `\citetitle{Willberg2021}`: _Wegweiser Schrift: Was passt - was wirkt - was stört?_
-    - `\fullcite{Willberg2021}`: #cite(<Willberg2021>, form: "full")
-  ],
-)
+- `\autocite{Willberg2021}`: @Willberg2021
+- `\cite{Willberg2021}`: @Willberg2021
+- `\parencite{Willberg2021}`: @Willberg2021
+- `\footcite{Willberg2021}`: #footnote[@Willberg2021]
+- `\citeauthor{Willberg2021}`: Willberg und Frossmann
+- `\citeauthor*{Willberg2021}`: Willberg #ua
+- `\citetitle{Willberg2021}`: _Wegweiser Schrift: Was passt - was wirkt - was stört?_
+- `\fullcite{Willberg2021}`: #cite(<Willberg2021>, form: "full")
 
 Denken Sie daran, dass das Übernehmen einer fremden Textstelle ohne entsprechenden Hinweis auf die Herkunft in wissenschaftlichen Arbeiten nicht akzeptabel ist und dazu führen kann, dass die Arbeit nicht anerkannt wird. Plagiate werden mit mangelhaft (5,0) bewertet und können weitere rechtliche Schritte nach sich ziehen.
 
