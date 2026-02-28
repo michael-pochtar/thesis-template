@@ -2,26 +2,70 @@
 #import "@preview/acrostiche:0.6.0": init-acronyms, print-index
 #import "thm-helpers.typ": *
 
+// This function gets your whole document as its `body` and formats it as
+// a thesis in the style of the University of Applied Sciences Mannheim.
+// Example usage can be found in `thesis.typ`.
 #let thm-thesis(
+  // The english title of the thesis.
   title-en: [Title of the Thesis],
+
+  // The german title of the thesis.
   title-de: [Titel der Thesis],
+
+  // Language of the thesis ("de" or "en").
   lang: "en",
+
+  // English abstract.
   abstract-en: [English abstract.],
+
+  // German abstract.
   abstract-de: [Deutsche Zusammenfassung.],
+
+  // The author's surname.
   author-surname: [Mustermann],
+
+  // The author's givenname.
   author-given-name: [Max],
+
+  // The names of your supervising professors.
   reviewers: ("Prof. A", "Prof. B"),
+
+  // The names of your supervisors at e.g. your company.
   advisors: ("C, M.Sc.", "D, M.Sc."),
+
+  // The submission date.
   submission-date: datetime.today(),
+
+  // The submission city.
   city: "Mannheim",
+
+  // Abbreviation for your faculty.
   faculty: "I",
+
+  // Abbreviation for your course of study.
   course-of-study: "IB",
+
+  // Toggle for proposal-mode. Mainly changes the title and omits some declarations.
+  // This is useful if you want to cleanly transition from a proposal into a thesis
+  // without much copy-pasting or restructuring. The template does it for you.
   is-proposal: false,
+
+  // Your bibliography. Pass `bibliography("your_refs.bib")`.
   bibliography: none,
+
+  // A list of glossary items. Check the example in `glossary.typ`.
   glossary: none,
+
+  // A list of acronyms. Check the example in `acronyms.typ`.
   acronyms: none,
+
+  // Your appendix. This has to be passed separately from the rest of the thesis as the numbering of the headings is different.
   appendix: none,
+
+  // An image of your handwritten signature.
   signature: none,
+
+  // The content of your thesis.
   body
 ) = {
 
@@ -34,34 +78,43 @@
   let course-of-study = courses-of-study.at(course-of-study)
   let faculty = faculties.at(faculty)
 
+  // Configure the page.
   set page(paper: "a4")
 
+  // Set the body font.
   set text(size: 11pt, font: serif, lang: lang)
 
   let date-format = "[day].[month].[year]"
 
+  // No page numbering until abstract.
   set page(numbering: none)
 
+  // Configure enum numbering scheme.
   set enum(indent: 1em, spacing: 1em, numbering: (..n) => {
+    // For the first level we use numbers 1, 2, 3, ...
+    // On the second level we use letters a), b), c), ...
     let level = n.pos().len() - 1
     let pattern = "1a".at(level, default: "a")
     let suffix = ".)".at(level, default: ")")
     numbering(pattern, n.pos().last()) + suffix
   }, full: true)
 
+  // Configure unnumbered list. For the first level
+  // we use dots and dashes for the second level.
   set list(indent: 1em, spacing: 1em, marker: ([•], [*–*]))
 
+  // Tables & figures
   set figure(gap: 1.5em)
   show figure.caption: set text(font: sans, size: 9pt)
   show figure.where(kind: table): set figure.caption(position: top)
   show figure: set block(breakable: true)
-  // show table.cell.where(y: 0): set text(weight: "bold")
   set table(stroke: none, align: left)
-  set table.hline(stroke: 0.8pt)
 
+  // Configure quotes.
   set quote(block: true)
   show quote: set pad(x: 3em, top: -2em)
 
+  // The cover page.
   page(
     margin: (right: 9.5%, top: 7.9%, left: 9.5%, bottom: 7.9%),
     [
@@ -85,12 +138,12 @@
           pad(top: 3.5em, [#course-of-study.type-en #if is-proposal [ Proposal ]])
           text(size: 11pt, [for the acquisition of the academic degree #course-of-study.degree])
           parbreak()
-          [Course of Studies: #course-of-study.en]
+          [Course of Studies: #course-of-study.at(lang)]
       } else {
           pad(top: 3.5em, [#course-of-study.type-de #if is-proposal [ Exposé ]])
           text(size: 11pt, [zur Erlangung des akademischen Grades #course-of-study.degree])
           parbreak()
-          [Studiengang #course-of-study.de]
+          [Studiengang #course-of-study.at(lang)]
       }
 
       #pad(top: 2em, bottom: 2em, [
@@ -118,13 +171,17 @@
     ],
   )
 
+  // Omit for proposal.
   if not is-proposal {
+    // General information on the thesis.
     page[
       *#author-surname, #author-given-name*:
       #parbreak()
       #title-de / #author-given-name #author-surname. --
       #parbreak()
-      #course-of-study.type-de, #city: #institute.de, #submission-date.year(). #context counter(page).final().first() Seiten.
+      #course-of-study.type-de, #city: #institute.de, #submission-date.year().
+      // Calculate the number of pages of actual content.
+      #context { locate(<end-of-body>).position().at("page") - locate(<start-of-body>).position().at("page") + 1 } Seiten.
 
       #v(3em)
 
@@ -132,7 +189,8 @@
       #parbreak()
       #title-en / #author-given-name #author-surname. --
       #parbreak()
-      #course-of-study.type-en, #city: #institute.en, #submission-date.year(). #context counter(page).final().first() pages.
+      #course-of-study.type-en, #city: #institute.en, #submission-date.year().
+      #context { locate(<end-of-body>).position().at("page") - locate(<start-of-body>).position().at("page") + 1 } pages.
 
       #if not is-en {
         place(bottom, [
@@ -142,23 +200,8 @@
       }
     ]
 
+    // Declarations, signature and license.
     page[
-      /*
-      #let declaration-ai = if is-en [Declaration on Generative AI] else [Erklärung zum Einsatz generativer KI]
-      #text(size: 20pt, font: sans, strong(declaration-ai))
-
-      #if is-en [
-        During the preparation of this work, the authors used ChatGPT and Grammarly in order to perform grammar and
-        spelling checks as well as paraphrasing and rewording. After using these tools, the authors reviewed and edited
-        the content as needed and take full responsibility for the publication’s content.
-      ] else [
-        Während der Erstellung dieser Arbeit wurden ChatGPT und Grammarly zur Unterstützung bei der Grammatik- und
-        Rechtschreibprüfung sowie zum Paraphrasieren und Umformulieren von Textpassagen verwendet. Nach der Nutzung
-        dieser Werkzeuge wurden die Inhalte eigenständig überprüft und bei Bedarf angepasst. Die Verantwortung für
-        den Inhalt dieser Arbeit liegt vollständig bei den Autoren.
-      ]
-      */
-
       #let declaration = if is-en [Declaration] else [Erklärung]
       #text(size: 20pt, font: sans, strong(declaration))
 
@@ -206,26 +249,29 @@
     ]
   }
 
+  // Configure paragraphs.
   set par(justify: true)
 
+  // Start numbering from here using roman.
   set page(numbering: "i")
 
+  // Configure heading text.
   show heading: h => {
     text(font: sans, strong(h))
   }
+
+  // Top level headings always start on a new page.
   show heading.where(level: 1): h => {
     pagebreak(weak: true)
     pad(top: 5em, bottom: 1em, text(size: 22pt, h))
   }
 
+  // Configure padding and text size depending on heading level.
   show heading.where(level: 2): h => pad(bottom: 1em, top: 1em, text(size: 15pt, h))
   show heading.where(level: 3): h => pad(bottom: 1em, h)
   show heading.where(level: 4): h => text(font: sans, h.body)
 
-  if acronyms != none {
-    init-acronyms(acronyms)
-  }
-
+  // Abstract in german and english. Omit if proposal.
   if not is-proposal {
     text(size: 20pt, font: sans, strong([Abstrakt]))
     v(1em)
@@ -242,6 +288,8 @@
     abstract-en
   }
 
+  // Configure the table of contents (called `outline` in typst).
+  // Check https://typst.app/docs/reference/model/outline/ for details.
   show outline.entry.where(level: 1): it => link(
     it.element.location(),
     pad(
@@ -250,22 +298,29 @@
     ),
   )
 
+  // Print the table of contents.
   outline(indent: auto, depth: 3)
 
+  // Initialize acronyms.
   if acronyms != none {
-    context {
-      let lang = text.lang
-      let title = if lang == "de" [Abkürzungsverzeichnis] else [Acronyms Index]
-      print-index(delimiter: "", title: title, clickable: false, row-gutter: 1em, outlined: true)
-    }
+    init-acronyms(acronyms)
   }
 
+  // Print acronyms.
+  if acronyms != none {
+    let title = if lang == "de" [Abkürzungsverzeichnis] else [Acronyms Index]
+    print-index(delimiter: "", title: title, clickable: false, row-gutter: 1em, outlined: true)
+  }
+
+  // Change the outline styling for figures, tables and listings.
   show outline.entry: it => link(
       it.element.location(),
       it.indented(it.prefix(), it.inner()),
   )
   show outline: set heading(outlined: true)
 
+  // Print the list of figures if it's not empty. The context block enables us to react to the
+  // number of images present in the document. See https://typst.app/docs/reference/context/.
   context {
     if counter(figure.where(kind: image)).final().at(0) > 0 {
       let title = if lang == "de" [Abbildungsverzeichnis] else [List of Figures]
@@ -273,6 +328,7 @@
     }
   }
 
+  // Print the list of tables if it's not empty.
   context {
     if counter(figure.where(kind: table)).final().at(0) > 0 {
       let title = if lang == "de" [Tabellenverzeichnis] else [List of Tables]
@@ -280,8 +336,11 @@
     }
   }
 
-  // TODO: Symbolverzeichnis
+  // TODO: List of symbols. There is currently no easy, out-of-the-box way to do this.
+  // I don't consider this to be a critical feature and I encourge you, should you need
+  // this feature, to go and implement it yourself.
 
+  // Print the list of listings if it's not empty.
   context {
     if counter(figure.where(kind: raw)).final().at(0) > 0 {
       let title = if lang == "de" [Quellcodeverzeichnis] else [List of Listings]
@@ -289,9 +348,12 @@
     }
   }
 
+  // Configure headings.
   let supplement = if is-en [Chapter] else [Kapitel]
   set heading(numbering: "1.1", supplement: supplement)
 
+  // Configure the page header. It shows the first heading that appears on that page.
+  // The header is omitted for each top level heading.
   set page(
     header: [
       #context {
@@ -324,37 +386,51 @@
     ],
   )
 
+  // Init glossary. This needs to happen before the `body` is included,
+  // because otherwise using glossary items in the body would error.
   if glossary != none {
     show: make-glossary
     register-glossary(glossary)
   }
 
   context {
-    let page-number = here().page() - 1
+    // Remember the page number before resetting.
+    let page-number = here().page()
 
+    // Set page numbering to arabic for the main content and reset the counter to 1.
     set page(numbering: "1")
-    // counter(page).update(1)
+    counter(page).update(1)
 
+    // Put invisible label at the start and end of the body so
+    // we can easily count the number of pages of actual content.
+    [#metadata("Start of body") <start-of-body>]
     body
+    [#metadata("End of body") <end-of-body>]
 
+    // Change back to roman numbering after the main content.
+    // Set the counter back to where we left off before the body.
     set page(numbering: "i")
-    // counter(page).update(page-number)
+    counter(page).update(page-number)
   }
 
   set heading(numbering: none)
 
+  // Print glossary on a new page.
   if glossary != none {
     pagebreak(weak: true)
     [= Glossar]
     print-glossary(glossary)
   }
 
+  // Print bibliography.
   bibliography
 
+  // Change the heading numbering for the appendix.
   counter(heading).update(0)
   let supplement = if is-en [Appendix] else [Anhang]
   set heading(numbering: "A.1", supplement: supplement)
 
+  // Print appendix.
   if appendix != none {
     [#appendix]
   }
